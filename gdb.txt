@@ -13,3 +13,6 @@ https://www.github.com/shubhamxborse/LPV.git
 g++ filename(dfs.cpp) -fopenmp
 
 ./a.out
+
+!g++ chg.cpp -fopenmp -o filename
+!./filename
