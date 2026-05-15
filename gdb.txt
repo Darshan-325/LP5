@@ -16,3 +16,5 @@ g++ filename(dfs.cpp) -fopenmp
 
 !g++ chg.cpp -fopenmp -o filename
 !./filename
+
+wget -O hp.zip https://github.com/vrunda1419/hp/raw/main/hp.zip
