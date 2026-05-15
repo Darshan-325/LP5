@@ -3,89 +3,35 @@
 
 using namespace std;
 
-// ======================================================
-// PARALLEL BUBBLE SORT
-// ======================================================
-void parallelBubbleSort(int a[], int n)
-{
-    for(int i = 0; i < n; i++)
-    {
-        // Even phase
-        #pragma omp parallel for
-        for(int j = 0; j < n - 1; j += 2)
-        {
-            if(a[j] > a[j + 1])
-            {
-                swap(a[j], a[j + 1]);
-            }
-        }
-
-        // Odd phase
-        #pragma omp parallel for
-        for(int j = 1; j < n - 1; j += 2)
-        {
-            if(a[j] > a[j + 1])
-            {
-                swap(a[j], a[j + 1]);
-            }
-        }
-    }
-}
-
-// ======================================================
-// MERGE FUNCTION
-// ======================================================
+// ================= MERGE FUNCTION =================
 void merge(int a[], int left, int mid, int right)
 {
-    int n1 = mid - left + 1;
-    int n2 = right - mid;
+    int i = left;
+    int j = mid + 1;
+    int k = 0;
 
-    int L[n1], R[n2];
+    int temp[100];
 
-    for(int i = 0; i < n1; i++)
-        L[i] = a[left + i];
-
-    for(int j = 0; j < n2; j++)
-        R[j] = a[mid + 1 + j];
-
-    int i = 0;
-    int j = 0;
-    int k = left;
-
-    while(i < n1 && j < n2)
+    while(i <= mid && j <= right)
     {
-        if(L[i] <= R[j])
-        {
-            a[k] = L[i];
-            i++;
-        }
+        if(a[i] < a[j])
+            temp[k++] = a[i++];
         else
-        {
-            a[k] = R[j];
-            j++;
-        }
-        k++;
+            temp[k++] = a[j++];
     }
 
-    while(i < n1)
-    {
-        a[k] = L[i];
-        i++;
-        k++;
-    }
+    while(i <= mid)
+        temp[k++] = a[i++];
 
-    while(j < n2)
-    {
-        a[k] = R[j];
-        j++;
-        k++;
-    }
+    while(j <= right)
+        temp[k++] = a[j++];
+
+    for(i = left, k = 0; i <= right; i++, k++)
+        a[i] = temp[k];
 }
 
-// ======================================================
-// PARALLEL MERGE SORT
-// ======================================================
-void parallelMergeSort(int a[], int left, int right)
+// ================= PARALLEL MERGE SORT =================
+void mergeSort(int a[], int left, int right)
 {
     if(left < right)
     {
@@ -94,30 +40,31 @@ void parallelMergeSort(int a[], int left, int right)
         #pragma omp parallel sections
         {
             #pragma omp section
-            parallelMergeSort(a, left, mid);
+            mergeSort(a, left, mid);
 
             #pragma omp section
-            parallelMergeSort(a, mid + 1, right);
+            mergeSort(a, mid + 1, right);
         }
 
         merge(a, left, mid, right);
     }
 }
 
-// ======================================================
-// PRINT ARRAY
-// ======================================================
-void printArray(int a[], int n)
+// ================= PARALLEL BUBBLE SORT =================
+void bubbleSort(int a[], int n)
 {
     for(int i = 0; i < n; i++)
-        cout << a[i] << " ";
-
-    cout << endl;
+    {
+        #pragma omp parallel for
+        for(int j = 0; j < n - 1; j++)
+        {
+            if(a[j] > a[j + 1])
+                swap(a[j], a[j + 1]);
+        }
+    }
 }
 
-// ======================================================
-// MAIN FUNCTION
-// ======================================================
+// ================= MAIN FUNCTION =================
 int main()
 {
     int n;
@@ -125,7 +72,7 @@ int main()
     cout << "Enter number of elements: ";
     cin >> n;
 
-    int a[n], b[n];
+    int a[100], b[100];
 
     cout << "Enter elements:\n";
 
@@ -135,17 +82,21 @@ int main()
         b[i] = a[i];
     }
 
-    // ================= BUBBLE SORT =================
-    parallelBubbleSort(a, n);
+    // Bubble Sort
+    bubbleSort(a, n);
 
     cout << "\nParallel Bubble Sort:\n";
-    printArray(a, n);
 
-    // ================= MERGE SORT =================
-    parallelMergeSort(b, 0, n - 1);
+    for(int i = 0; i < n; i++)
+        cout << a[i] << " ";
 
-    cout << "\nParallel Merge Sort:\n";
-    printArray(b, n);
+    // Merge Sort
+    mergeSort(b, 0, n - 1);
+
+    cout << "\n\nParallel Merge Sort:\n";
+
+    for(int i = 0; i < n; i++)
+        cout << b[i] << " ";
 
     return 0;
 }
