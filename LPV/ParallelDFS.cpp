@@ -12,20 +12,17 @@ void parallelDFS(int node)
     visited[node] = 1;
 
     #pragma omp critical
-    cout << node << " ";
+    {
+        cout << node << " ";
+    }
 
-    #pragma omp parallel for
     for (int i = 0; i < graph[node].size(); i++)
     {
         int adjNode = graph[node][i];
 
-        #pragma omp critical
+        if (!visited[adjNode])
         {
-            if (!visited[adjNode])
-            {
-                visited[adjNode] = 1;
-                parallelDFS(adjNode);
-            }
+            parallelDFS(adjNode);
         }
     }
 }
@@ -60,4 +57,3 @@ int main()
 
     return 0;
 }
-
