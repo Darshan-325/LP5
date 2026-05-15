@@ -9,3 +9,7 @@ https://www.github.com/shubhamxborse/LPV.git
 1!%%writefile comDFSBFS.cpp
 2!g++ -fopenmp comDFSBFS.cpp -o comDFSBFS
 3 !./comDFSBFS
+
+g++ filename(dfs.cpp) -fopenmp
+
+./a.out
